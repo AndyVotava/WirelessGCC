@@ -1,4 +1,4 @@
-// Padded and checksummed version of: C:/Users/Andrew.Votava/Desktop/Wirelessgcc/build/pico-sdk/src/rp2_common/boot_stage2/bs2_default.bin
+// Padded and checksummed version of: /Users/andyvotava/Documents/pico_projects/WirelessGCC/build/pico-sdk/src/rp2_common/boot_stage2/bs2_default.bin
 
 .cpu cortex-m0plus
 .thumb
