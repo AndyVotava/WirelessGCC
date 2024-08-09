@@ -20,4 +20,8 @@ private:
 public:
     gcconsole(uint8_t pin);
     bool write_data(GCreport origin, GCreport report);
+    bool init();
+    bool write_origin();
+    bool write_report(GCreport report);
+    void begin();
 };

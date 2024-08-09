@@ -24,7 +24,6 @@ gcconsole::gcconsole(uint8_t pin){
     pio_gpio_init(pio, pin);
     pio_sm_init(pio, sm, offset, &c);
     pio_sm_set_clkdiv(pio, sm, 5);
-    pio_sm_set_enabled(pio, sm, true);
 }
 
 
@@ -45,7 +44,7 @@ bool gcconsole::write_data(GCreport origin, GCreport report){
 
     else if(request == 0x41){
 
-        //sleep_us(5);
+        sleep_us(5);
 
         outmode();
         
@@ -81,5 +80,72 @@ bool gcconsole::write_data(GCreport origin, GCreport report){
     return false;
 }
 
+bool gcconsole::init(){
+
+    uint8_t request = pio_sm_get_blocking(pio, sm);
 
 
+    if(request == 0x00){
+        sleep_us(5);
+
+        outmode();
+
+        pio_sm_put_blocking(pio, sm, 0b10101010101010101110101110101010);
+        pio_sm_put_blocking(pio, sm, 0b111110101010101011);
+
+        return true;
+    }
+
+    return false;
+}
+
+bool gcconsole::write_origin(){
+    uint8_t request = pio_sm_get_blocking(pio, sm);
+
+
+    if(request == 0x41){
+
+        sleep_us(5);
+
+        outmode();
+        
+        pio_sm_put_blocking(pio, sm, to_pio(default_GCreport.SYXBA << 8 | default_GCreport.LRZD));
+        pio_sm_put_blocking(pio, sm, to_pio(default_GCreport.xStick << 8 | default_GCreport.yStick));
+        pio_sm_put_blocking(pio, sm, to_pio(default_GCreport.cxStick << 8 | default_GCreport.cyStick));
+        pio_sm_put_blocking(pio, sm, to_pio(default_GCreport.analogL << 8 | default_GCreport.analogR));
+        pio_sm_put_blocking(pio, sm, TWO_NULL_BYTES);
+        pio_sm_put_blocking(pio, sm, 0b11);
+        
+        return true;
+    }
+    return false;
+}
+
+bool gcconsole::write_report(GCreport report){
+    uint8_t request = pio_sm_get_blocking(pio, sm);
+
+    if (request == 0x40){
+        pio_sm_get_blocking(pio, sm);
+        pio_sm_get_blocking(pio, sm);
+
+        sleep_us(5);
+
+        outmode();
+        
+        pio_sm_put_blocking(pio, sm, to_pio(report.SYXBA << 8 | report.LRZD));
+        pio_sm_put_blocking(pio, sm, to_pio(report.xStick << 8 | report.yStick));
+        pio_sm_put_blocking(pio, sm, to_pio(report.cxStick << 8 | report.cyStick));
+        pio_sm_put_blocking(pio, sm, to_pio(report.analogL << 8 | report.analogR));
+        pio_sm_put_blocking(pio, sm, 0b11);
+
+        return true;
+
+    }
+
+    return false;
+
+}
+
+void gcconsole::begin(){
+    pio_sm_set_enabled(pio, sm, true);
+}

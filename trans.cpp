@@ -21,11 +21,11 @@ int main(){
 
     transmitter.openWritingPipe(address);
 
-    transmitter.setPALevel(RF24_PA_LOW);
+    transmitter.setPALevel(RF24_PA_HIGH);
 
     transmitter.setPayloadSize(sizeof(controller1.report));
 
-    transmitter.setDataRate(RF24_2MBPS);
+    transmitter.setDataRate(RF24_1MBPS);
 
     transmitter.setRetries(0, 0);
 
