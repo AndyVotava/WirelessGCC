@@ -14,23 +14,39 @@ GCreport report = default_GCreport;
 
 gcconsole console(0);
 
-/*
 alarm_id_t alarm;
 
+//NOTE CANNOT SLEEP IN ALARM CALLBACK FUNCTION USE BUSY WAIT INSTEAD
 int64_t alarm_callback(alarm_id_t id, void *user_data){
 
-    console.write_report(report);
-    console.write_report(report);
+    gpio_put(PICO_DEFAULT_LED_PIN, false);
 
-    alarm = add_alarm_in_ms(16, alarm_callback, NULL, false);
+    console.write_report(report);
+    
+    alarm = add_alarm_in_ms(1, alarm_callback, NULL, false);  
+
 
     return 0;
 }
-*/
+
 
 int main(){
 
-    reciever.begin();
+    gpio_init(PICO_DEFAULT_LED_PIN);
+
+    gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
+
+    gpio_put(PICO_DEFAULT_LED_PIN, true);
+
+    sleep_ms(1000);
+
+
+    while(!reciever.begin()){
+        
+    }
+    
+    gpio_put(PICO_DEFAULT_LED_PIN, false);
+
 
     reciever.openReadingPipe(0, address);
 
@@ -54,20 +70,25 @@ int main(){
 
     console.write_origin();
 
-    console.write_report(default_GCreport);
+    console.write_report(report);
 
-    //add_alarm_in_ms(2, alarm_callback, NULL, false);    
+    alarm = add_alarm_in_ms(1, alarm_callback, NULL, false);  
+
+    //gpio_put(PICO_DEFAULT_LED_PIN, true);
+  
 
     while (true)
     {
-        
+        /*
         if (reciever.available()) {
-            //cancel_alarm(alarm);
+            cancel_alarm(alarm);
             reciever.read(&report, sizeof(report));
             console.write_report(report);
             console.write_report(report);
-            //alarm = add_alarm_in_ms(16, alarm_callback, NULL, false);
+            alarm = add_alarm_in_ms(16, alarm_callback, NULL, false);
         }
+        */
+        
         
     }
 }   

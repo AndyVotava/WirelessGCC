@@ -12,10 +12,8 @@ GCcontroller controller1(0);
 
 int main(){
 
-    //stdio_init_all();
 
     while(!transmitter.begin()){
-        printf("sad\n");
         sleep_ms(1000);
     }
 
