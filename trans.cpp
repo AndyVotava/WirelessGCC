@@ -12,14 +12,19 @@ GCcontroller controller1(0);
 
 int main(){
 
+    gpio_init(PICO_DEFAULT_LED_PIN);
+
+    gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
 
     while(!transmitter.begin()){
-        sleep_ms(1000);
+        
     }
+
+    sleep_ms(1);
 
     transmitter.openWritingPipe(address);
 
-    transmitter.setPALevel(RF24_PA_HIGH);
+    transmitter.setPALevel(RF24_PA_LOW);
 
     transmitter.setPayloadSize(sizeof(controller1.report));
 
@@ -35,16 +40,21 @@ int main(){
     sleep_us(25);
     controller1.get_origin();
     sleep_us(100);
-    controller1.get_report();
+    
     
 
 
     while (true)
     {
-        
-        transmitter.write(&controller1.report, sizeof(controller1.report));
         controller1.get_report();
+        
+        if(transmitter.write(&controller1.report, sizeof(controller1.report))){
+            gpio_put(PICO_DEFAULT_LED_PIN, true);
+        }
+        else{
+            gpio_put(PICO_DEFAULT_LED_PIN, false);
 
+        }
     }
     
 

@@ -132,9 +132,6 @@ bool gcconsole::write_report(GCreport report){
 
         outmode();
 
-        gpio_put(PICO_DEFAULT_LED_PIN, true);
-
-
         pio_sm_put_blocking(pio, sm, to_pio(report.SYXBA << 8 | report.LRZD));
         pio_sm_put_blocking(pio, sm, to_pio(report.xStick << 8 | report.yStick));
         pio_sm_put_blocking(pio, sm, to_pio(report.cxStick << 8 | report.cyStick));
