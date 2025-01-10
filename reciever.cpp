@@ -11,24 +11,20 @@ const uint8_t address[6] = "00001";
 RF24 reciever(CE_PIN, CS_PIN);
 
 GCreport report = default_GCreport;
+GCreport origin = default_GCreport;
 
 gcconsole console(0);
 
-alarm_id_t alarm;
 
-int count = 0;
+void callback(uint gpio, uint32_t events){
+    gpio_set_irq_enabled_with_callback(0, GPIO_IRQ_EDGE_FALL, false, &callback);
 
-//NOTE CANNOT SLEEP IN ALARM CALLBACK FUNCTION USE BUSY WAIT INSTEAD
-int64_t alarm_callback(alarm_id_t id, void *user_data){
+    if(!console.write_data(origin, report)){
+        gpio_put(PICO_DEFAULT_LED_PIN, true);   //An error occured
+    }
 
-    console.write_report(report);
-    console.write_report(report);
+    gpio_set_irq_enabled_with_callback(0, GPIO_IRQ_EDGE_FALL, true, &callback);
 
-    count += 1;
-    
-    alarm = add_alarm_in_ms(15, alarm_callback, NULL, false);  
-
-    return 0;
 }
 
 
@@ -70,21 +66,12 @@ int main(){
 
     console.write_report(report);
 
-    alarm = add_alarm_in_ms(15, alarm_callback, NULL, false);  
-
-    gpio_put(PICO_DEFAULT_LED_PIN, true);
+    gpio_set_irq_enabled_with_callback(0, GPIO_IRQ_EDGE_FALL, true, &callback);
 
     while(true)
     {
         if (reciever.available()) {
             reciever.read(&report, sizeof(report));
-            count = 0;
-            gpio_put(PICO_DEFAULT_LED_PIN, true);
-        }
-        else if (count >= 5)
-        {
-            //disconnected controller
-            gpio_put(PICO_DEFAULT_LED_PIN, false);
         }
     }
 }   

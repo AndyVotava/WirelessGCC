@@ -32,19 +32,18 @@ bool gcconsole::write_data(GCreport origin, GCreport report){
 
 
     if(request == 0x00){
-        sleep_us(5);
+        busy_wait_us(5);
 
         outmode();
 
         pio_sm_put_blocking(pio, sm, 0b10101010101010101110101110101010);
         pio_sm_put_blocking(pio, sm, 0b111110101010101011);
 
-        return false;
     }
 
     else if(request == 0x41){
 
-        sleep_us(5);
+        busy_wait_us(5);
 
         outmode();
         
@@ -55,14 +54,13 @@ bool gcconsole::write_data(GCreport origin, GCreport report){
         pio_sm_put_blocking(pio, sm, TWO_NULL_BYTES);
         pio_sm_put_blocking(pio, sm, 0b11);
         
-        return true;
     }
 
     else if (request == 0x40){
         pio_sm_get_blocking(pio, sm);
         pio_sm_get_blocking(pio, sm);
 
-        sleep_us(5);
+        busy_wait_us(5);
 
         outmode();
         
@@ -72,12 +70,19 @@ bool gcconsole::write_data(GCreport origin, GCreport report){
         pio_sm_put_blocking(pio, sm, to_pio(report.analogL << 8 | report.analogR));
         pio_sm_put_blocking(pio, sm, 0b11);
 
-        return true;
-
     }
 
+    else{
+        //problem
+        return false;
+    }
+
+    while(true){
+        if(pio_sm_get_pc(pio, sm) < offset+joybus_offset_outmode){
+            return true;
+        }
+    }
     
-    return false;
 }
 
 bool gcconsole::init(){

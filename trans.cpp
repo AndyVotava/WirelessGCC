@@ -1,8 +1,8 @@
 #include "GCcontroller.h"
 #include <RF24.h>
 
-#define CE_PIN 7
-#define CS_PIN 8
+#define CE_PIN 20
+#define CS_PIN 17
 
 const uint8_t address[6] = "00001";
 
@@ -40,22 +40,14 @@ int main(){
     sleep_us(25);
     controller1.get_origin();
     sleep_us(100);
-    
-    
 
+    gpio_put(PICO_DEFAULT_LED_PIN, true);
 
     while (true)
     {
         controller1.get_report();
         
-        if(transmitter.write(&controller1.report, sizeof(controller1.report))){
-            gpio_put(PICO_DEFAULT_LED_PIN, true);
-        }
-        else{
-            gpio_put(PICO_DEFAULT_LED_PIN, false);
-
-        }
+        transmitter.write(&controller1.report, sizeof(controller1.report));
     }
     
-
 }   
